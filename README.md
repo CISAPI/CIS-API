@@ -9,7 +9,7 @@ For the most recent endpoint documentation see https://api.autodealerdata.com/do
 
 # Installation
 The library can be installed with pip.
-```pip install cis-api```
+```pip install cisapi```
 
 # Getting Started
 * Our API can be accessed directly from us at https://api.autodealerdata.com or through the third party [RapidAPI](https://rapidapi.com/competitive-intelligence-solutions-llc-competitive-intelligence-solutions-llc-default/api/cis-automotive/). This library can handle either access method, but the access credentials must be retrieved differently. If you do not already have an account with us or with RapidAPI you must [create an account](https://autodealerdata.com/signup) to access our API.
@@ -18,7 +18,7 @@ The library can be installed with pip.
 * We reccomend you create a local config file to store your API keys and help keep them out of source control. 
     * A helper function is provided to correctly format the config file and can be used with:
     ```python
-    from CisApi import CisApi
+    from cisapi import makeConfig
     makeConfig(configFile="CIS_API_CREDS.txt", apiKey="YOUR_API_KEY", apiKeyID="YOUR_API_KEY_ID_OR_EMPTY_STR_IF_USING_RAPIDAPI", stageName="default")
     ```
     The final config file will look like this.
@@ -29,7 +29,7 @@ The library can be installed with pip.
     ```
     * Your API credentials may also be passed directly into the Library's constructor if you don't want to create a config file.
     ```python
-    from CisApi import CisApi
+    from cisapi import CisApi
     apiDriver=CisApi(apiKey="your key", apiKeyID="your key id") # load without config file
     apiDriver=CisApi(configFileName="yourConfigFile.txt") # load with a non default config file name
     apiDriver=CisApi() # load with default config file name
@@ -41,16 +41,18 @@ Below are some basic example uses of the library. Additional generic examples ar
     *  All successful API responses are json objects that contain various metadata keys and a "data" key with the response payload. The type of the "data" key depends on the endpoint, but is generally another json object or array. Example responses of each endpoint are available on [RapidAPI](https://rapidapi.com/competitive-intelligence-solutions-llc-competitive-intelligence-solutions-llc-default/api/cis-automotive/endpoints)
 * Get Brands
 ```python 
-from CisApi import CisApi
+from cisapi import CisApi
 apiDriver=CisApi()
+#apiDriver.useRapidAPI=True #set true if using RapidAPI as your provider
 brands=apiDriver.getBrands()["data"]
 for brand in brands:
     print(brand)
 ```
 * Get Regions
 ```python 
-from CisApi import CisApi
+from cisapi import CisApi
 apiDriver=CisApi()
+#apiDriver.useRapidAPI=True #set true if using RapidAPI as your provider
 regions=apiDriver.getRegions()["data"]
 for region in regions:
     print(region)
@@ -61,8 +63,9 @@ for region in regions:
 #This example uses a premium endpoint that may incur 
 #overages depending on your subscription plan.
 
-from CisApi import CisApi
+from cisapi import CisApi
 apiDriver=CisApi()
+#apiDriver.useRapidAPI=True #set true if using RapidAPI as your provider
 brands=apiDriver.getBrands()["data"]
 regions=apiDriver.getRegions()["data"]
 month="2020-01-01" 
@@ -87,10 +90,11 @@ for brand in brands:
 
 * Vin Decode
 ```python 
-from CisApi import CisApi
+from cisapi import CisApi
 import json
 
 apiDriver=CisApi()
+#apiDriver.useRapidAPI=True #set true if using RapidAPI as your provider
 vins=["1G1JD6SH9J4126861",
 "1GCGTEEN2H1258839",
 "1HGCP268X8A157835",
@@ -113,10 +117,11 @@ for vin in vins:
     *  When we add new endpoints to the API there may not immediately be bindings available in this library. It is still possible to use the new endpoints with an older version of the library with the getWrapper() function. This is the core function of the library that handles API requests and authentication. All other endpoint bindings are simple wrappers for this function. The following example shows how to do this.
 ```python
 #arbitrary endpoint example
-from CisApi import CisApi
+from cisapi import CisApi
 import json
 
 apiDriver=CisApi()
+#apiDriver.useRapidAPI=True #set true if using RapidAPI as your provider
 #both of these are valid choices for the same endpoint
 customEndpointName="/getSomeNewEndPoint"
 customEndpointName="getSomeNewEndPoint" 

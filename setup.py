@@ -1,15 +1,15 @@
 
 from distutils.core import setup
 setup(
-  name = 'CIS-API',
-  packages = ['CIS-API'],
+  name = 'cisapi',
+  packages = ['cisapi'],
   version = '0.1',
   license='MIT',
   description = '',   # Give a short description about your library
-  author = '',                   # Type in your name
-  author_email = 'support@competitiveintelligencesolutions.com',      # Type in your E-Mail
+  author = 'Competitive Intelligence Solutions LLC',                   # Type in your name
+  author_email = 'engineering@competitiveintelligencesolutions.com',      # Type in your E-Mail
   url = 'https://autodealerdata.com',   # Provide either the link to your github or to your website
-  download_url = 'https://github.com/user/reponame/archive/v_01.tar.gz',    # I explain this later on
+  download_url = 'https://github.com/CISAPI/CIS-API/archive/0.1.0.tar.gz',    # I explain this later on
   keywords = ['CIS', 'Automotive', 'API', 'Library'],   # Keywords that define your package best
   install_requires=[            # I get to this in a second
           'requests'
