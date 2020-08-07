@@ -27,7 +27,7 @@ class CisApi:
         call the endpoint via the getWrapper(endPoint:str, params:dict) function. Simply pass the endpoint name as 
         a string and the parameters in as a keyword dictionary {"arg1": value1, "arg2":value2}"""
         self.apiKey=apiKey
-        self.version="0.1.0"
+        self.version="0.1.4"
         self.apiKeyID=apiKeyID
         self.configFileName="CIS_API_CREDS.txt"
         if(configFileName):
@@ -37,8 +37,10 @@ class CisApi:
         self.minTokenLifetime=360
         self.baseURL="https://api.autodealerdata.com"
         self.useRapidAPI=False
+        self.useVinAPI=False
         self.timeout=180
-        self.rapidAPIBaseURL="https://cis-automotive.p.rapidapi.com"
+        self.rapidAPIBaseURL="cis-automotive.p.rapidapi.com"
+        self.rapidAPIVinBaseURL="cis-vin-decoder.p.rapidapi.com"
         self.rapidAPIHeaders={ 'x-rapidapi-host': "cis-automotive.p.rapidapi.com",
                                 'x-rapidapi-key':""}
         self.userAgent="python-CIS-API-LIB/"+self.version
@@ -71,11 +73,16 @@ class CisApi:
             explicitly provide API credentials in the object constructor.""")
         headers={"User-Agent": self.userAgent}
         url=self.baseURL
-        if(self.useRapidAPI):
-            includeJWT=False
-            url=self.rapidAPIBaseURL
-            headers["x-rapidapi-host"]= self.rapidAPIHeaders["x-rapidapi-host"]
+        if(self.useRapidAPI or self.useVinAPI):
             headers["x-rapidapi-key"]=self.apiKey
+            includeJWT=False
+        if(self.useRapidAPI):
+            url="https://"+self.rapidAPIBaseURL
+            headers["x-rapidapi-host"]= self.rapidAPIBaseURL
+        if(self.useVinAPI):
+            url="https://"+self.rapidAPIVinBaseURL
+            headers["x-rapidapi-host"]= self.rapidAPIVinBaseURL
+            
         if(includeJWT):
             ttl=self.jwtExpires -time.time()
             #if our token is expired or about to expire refresh it before making the api call
@@ -90,7 +97,14 @@ class CisApi:
         if(respCode!=200):
             #print("Exception encountered calling endPoint: "+endPoint)
             #print("Msg from server: "+str(j))
-            raise Exception("Exception encountered calling endPoint: "+endPoint+" Response from server: "+str(j))
+            msg="Exception encountered calling endPoint: "+endPoint
+            if(respCode==401):
+                msg+="""\nPlease verify that you have correctly set the useRapidAPI or useVinAPI variables. The "useRapidAPI" corresponds
+                to the CIS Automotive API while "useVinAPI" corresponds to the CIS Vin Decoder API. You must have an active subscription
+                on the corresponding API to make requests to it."""
+
+            msg+="\nResponse from server: "+str(j)
+            raise Exception()
         return j
 
     def getToken(self):
@@ -151,10 +165,18 @@ class CisApi:
     #dealership data
     def getDealers(self, zipCode:int):
         return self.getWrapper("getDealers",{ "zipCode":zipCode})
+    def getDealersByRegion(self, regionName:str="REGION_STATE_CA", page:int=1):
+        return self.getWrapper("getDealersByRegion",{"regionName":regionName, "page":page})
+    def getDealersByID(self, dealerID:int):
+        return self.getWrapper("getDealersByID",{"dealerID":dealerID})
 
     #vehicle data
     def vehicleHistory(self, vin:str):
         return self.getWrapper("vehicleHistory",{ "vin":vin})
     def vinDecode(self, vin:str, passEmpty:bool=False):
         return self.getWrapper("vinDecode",{ "vin":vin, "passEmpty":passEmpty})
+    def listings(self, dealerID:int, page:int=1, newCars:bool=True):
+        return self.getWrapper("listings",{"dealerID":dealerID, "page":page, "newCars":newCars})
+    def listingsByRegion(self, regionName:str, modelName:str, page:int=1, newCars:bool=True, daysBack:int=45):
+        return self.getWrapper("listingsByRegion",{"regionName":regionName, "modelName":modelName, "page":page, "newCars":newCars, "daysBack":daysBack})
 
