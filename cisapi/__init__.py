@@ -27,7 +27,7 @@ class CisApi:
         call the endpoint via the getWrapper(endPoint:str, params:dict) function. Simply pass the endpoint name as 
         a string and the parameters in as a keyword dictionary {"arg1": value1, "arg2":value2}"""
         self.apiKey=apiKey
-        self.version="0.1.4"
+        self.version="0.1.5"
         self.apiKeyID=apiKeyID
         self.configFileName="CIS_API_CREDS.txt"
         if(configFileName):
@@ -50,9 +50,7 @@ class CisApi:
         
     def loadConfig(self, configFile:str=None, stageName:str="default"):
         if(configFile is None):
-            configFile=self.configFileName
-
-        
+            configFile=self.configFileName  
         
         if(configFile and os.path.isfile(configFile)):
             parser=configparser.ConfigParser()
@@ -84,13 +82,14 @@ class CisApi:
             headers["x-rapidapi-host"]= self.rapidAPIVinBaseURL
             
         if(includeJWT):
-            ttl=self.jwtExpires -time.time()
             #if our token is expired or about to expire refresh it before making the api call
-            if(ttl<=self.minTokenLifetime):
+            if(self.needsRefresh()):
                 self.getToken()
             params["jwt"]=self.jwt
         if(url[-1]!="/" and endPoint[0]!="/"):# check to make sure a / exists between url and endPoint
             endPoint="/"+endPoint
+        if(url[-1]=="/" and endPoint[0]=="/"):# check to make sure a only one / exists between url and endPoint
+            endPoint=endPoint[1:]
         res=requests.get(url+endPoint, params=params, headers=headers, timeout=self.timeout)
         respCode=res.status_code
         j=res.json()
@@ -99,9 +98,12 @@ class CisApi:
             #print("Msg from server: "+str(j))
             msg="Exception encountered calling endPoint: "+endPoint
             if(respCode==401):
-                msg+="""\nPlease verify that you have correctly set the useRapidAPI or useVinAPI variables. The "useRapidAPI" corresponds
-                to the CIS Automotive API while "useVinAPI" corresponds to the CIS Vin Decoder API. You must have an active subscription
-                on the corresponding API to make requests to it."""
+                msg+="""\nPlease verify that you have correctly set the useRapidAPI or useVinAPI variables. The "useRapidAPI" variable corresponds
+                to the CIS Automotive API via RapidAPI while "useVinAPI" corresponds to the CIS Vin Decoder API via RapidAPI.\n 
+                If you have subscribed via our site (https://autodealerdata.com) you must retrieve your API keys from your account page and 
+                include them in a config file or as arguments to this object's constructor. See https://api.autodealerdata.com/APIQuickStart \n
+                You must have an active subscription on the corresponding API to make requests to it. Not all endpoints are available to all
+                subscription plans. You can check the endpoint specific documentation at https://api.autodealerdata.com/docs \n"""
 
             msg+="\nResponse from server: "+str(j)
             raise Exception()
@@ -113,7 +115,6 @@ class CisApi:
         endPoint="/getToken"
         
         params={"apiID":self.apiKeyID, "apiKey":self.apiKey}
-
         try:
             r=self.getWrapper(endPoint, params, includeJWT=False)
         except Exception as e:
@@ -127,6 +128,22 @@ class CisApi:
             return True
         return False
 
+    def needsRefresh(self, safetyFactor:float=1):
+        """Returns True if token is below time to live limit. SafetyFactor determines additional constraint on time to live calculation. If you want to be 20% more conservative
+        with default values you can pass 1.2 as a safetyfactor."""
+        now=time.time()
+        ttl=self.jwtExpires -now
+        if(ttl<=(self.minTokenLifetime*safetyFactor)):
+            return True
+        return False
+
+    def toDict(self):
+        """Convert this object to a dictionary. Allows for easier multiprocessing while saving on getToken calls."""
+        return self.__dict__.copy()
+    def fromDict(self, d):
+        """Set object properties based off of previous toDict() calls. Allows for easier multiprocessing while saving on getToken calls."""
+        self.__dict__=d
+        return
 
     #static data
     def getRegions(self):
@@ -179,4 +196,15 @@ class CisApi:
         return self.getWrapper("listings",{"dealerID":dealerID, "page":page, "newCars":newCars})
     def listingsByRegion(self, regionName:str, modelName:str, page:int=1, newCars:bool=True, daysBack:int=45):
         return self.getWrapper("listingsByRegion",{"regionName":regionName, "modelName":modelName, "page":page, "newCars":newCars, "daysBack":daysBack})
+    def listingsByRegionAndDate(self, regionName:str, modelName:str, startDate:date, endDate:date, page:int=1, newCars:bool=True):
+        return self.getWrapper("listingsByRegionAndDate",{"regionName":regionName, "modelName":modelName, "startDate":startDate, "endDate":endDate, "page":page, "newCars":newCars })
+
+    #market share
+    def getRegionBrandMarketShare(self, brandName:str, regionName:str="REGION_STATE_CA"):
+        return self.getWrapper("getRegionBrandMarketShare", {"brandName":brandName,  "regionName":regionName})
+    def getRegionMarketShare(self, regionName:str="REGION_STATE_CA"):
+        return self.getWrapper("getRegionMarketShare", {"regionName":regionName})
+    
+    
+    
 
