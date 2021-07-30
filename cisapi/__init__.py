@@ -27,7 +27,7 @@ class CisApi:
         call the endpoint via the getWrapper(endPoint:str, params:dict) function. Simply pass the endpoint name as 
         a string and the parameters in as a keyword dictionary {"arg1": value1, "arg2":value2}"""
         self.apiKey=apiKey
-        self.version="0.1.5"
+        self.version="2021.08.01"
         self.apiKeyID=apiKeyID
         self.configFileName="CIS_API_CREDS.txt"
         if(configFileName):
@@ -140,6 +140,7 @@ class CisApi:
     def toDict(self):
         """Convert this object to a dictionary. Allows for easier multiprocessing while saving on getToken calls."""
         return self.__dict__.copy()
+
     def fromDict(self, d):
         """Set object properties based off of previous toDict() calls. Allows for easier multiprocessing while saving on getToken calls."""
         self.__dict__=d
@@ -148,63 +149,98 @@ class CisApi:
     #static data
     def getRegions(self):
         return self.getWrapper("getRegions",{})
+
     def getBrands(self):
         return self.getWrapper("getBrands",{})
+
     def getModels(self, brandName:str):
         return self.getWrapper("getModels",{"brandName":brandName})
+
     def getInactiveModels(self, brandName:str):
         return self.getWrapper("getInactiveModels",{"brandName":brandName})
 
     #supply data
     def daysToSell(self, brandName:str, regionName:str="REGION_STATE_CA"):
         return self.getWrapper("daysToSell",{"brandName":brandName, "regionName":regionName})
+
     def daysSupply(self, brandName:str, regionName:str="REGION_STATE_CA"):
         return self.getWrapper("daysSupply",{"brandName":brandName, "regionName":regionName})
 
     #Pricing data
     def listPrice(self, brandName:str, regionName:str="REGION_STATE_CA"):
         return self.getWrapper("listPrice",{"brandName":brandName, "regionName":regionName})
+
     def salePrice(self, brandName:str, regionName:str="REGION_STATE_CA"):
         return self.getWrapper("salePrice",{"brandName":brandName, "regionName":regionName})
+
     def salePriceHistogram(self, brandName:str, modelName:str, regionName:str="REGION_STATE_CA"):
         return self.getWrapper("salePriceHistogram",{"brandName":brandName, "modelName":modelName, "regionName":regionName})
+
     def similarSalePrice(self, vin:str, regionName:str="REGION_STATE_CA", daysBack:int=45, sameYear:bool=False):
         return self.getWrapper("similarSalePrice",{"vin":vin, "daysBack":daysBack, "regionName":regionName, "sameYear":sameYear})
 
     #sales data
     def topModels(self, regionName:str="REGION_STATE_CA"):
         return self.getWrapper("topModels",{ "regionName":regionName})
+
     def regionSales(self, brandName:str, month:date, regionName:str="REGION_STATE_CA"):
         return self.getWrapper("regionSales",{"brandName":brandName, "month":month.isoformat(), "regionName":regionName})
+
     def regionDailySales(self, brandName:str, day:date, regionName:str="REGION_STATE_CA"):
         return self.getWrapper("regionDailySales",{"brandName":brandName, "day":day.isoformat(), "regionName":regionName})
 
     #dealership data
     def getDealers(self, zipCode:int):
         return self.getWrapper("getDealers",{ "zipCode":zipCode})
+
     def getDealersByRegion(self, regionName:str="REGION_STATE_CA", page:int=1):
         return self.getWrapper("getDealersByRegion",{"regionName":regionName, "page":page})
+
     def getDealersByID(self, dealerID:int):
         return self.getWrapper("getDealersByID",{"dealerID":dealerID})
 
     #vehicle data
     def vehicleHistory(self, vin:str):
         return self.getWrapper("vehicleHistory",{ "vin":vin})
+
     def vinDecode(self, vin:str, passEmpty:bool=False):
         return self.getWrapper("vinDecode",{ "vin":vin, "passEmpty":passEmpty})
+
     def listings(self, dealerID:int, page:int=1, newCars:bool=True):
         return self.getWrapper("listings",{"dealerID":dealerID, "page":page, "newCars":newCars})
+
+    def listingsByDate(self, dealerID:int, startDate:date, endDate:date, page:int=1, newCars:bool=True):
+        return self.getWrapper("listingsByDate",{"dealerID":dealerID, "startDate":startDate, "endDate":endDate, "page":page, "newCars":newCars})
+
     def listingsByRegion(self, regionName:str, modelName:str, page:int=1, newCars:bool=True, daysBack:int=45):
         return self.getWrapper("listingsByRegion",{"regionName":regionName, "modelName":modelName, "page":page, "newCars":newCars, "daysBack":daysBack})
+
     def listingsByRegionAndDate(self, regionName:str, modelName:str, startDate:date, endDate:date, page:int=1, newCars:bool=True):
         return self.getWrapper("listingsByRegionAndDate",{"regionName":regionName, "modelName":modelName, "startDate":startDate, "endDate":endDate, "page":page, "newCars":newCars })
+
+    
+    def listingsByZipCode(self, zipCode:int, page:int=1, newCars:bool=True, modelName:str=None):
+        args={"zipCode":zipCode, "page":page, "newCars":newCars }
+        if(modelName):
+            args["modelName"]=modelName
+        return self.getWrapper("listingsByZipCode", args)
+
+    def listingsByZipCodeAndDate(self, zipCode:int, startDate:date, endDate:date, page:int=1, newCars:bool=True, modelName:str=None):
+        args={"zipCode":zipCode, "startDate":startDate, "endDate":endDate, "page":page, "newCars":newCars }
+        if(modelName):
+            args["modelName"]=modelName
+        return self.getWrapper("listingsByZipCodeAndDate", args)
 
     #market share
     def getRegionBrandMarketShare(self, brandName:str, regionName:str="REGION_STATE_CA"):
         return self.getWrapper("getRegionBrandMarketShare", {"brandName":brandName,  "regionName":regionName})
+
     def getRegionMarketShare(self, regionName:str="REGION_STATE_CA"):
         return self.getWrapper("getRegionMarketShare", {"regionName":regionName})
     
+    #application acceleration
+    def vehicleSeen(self, vin:str, afterDate:date):
+        return self.getWrapper("vehicleSeen",{"vin":vin, "afterDate":afterDate})
     
     
 
