@@ -2,7 +2,7 @@
 
 [![CIS Automotive API](https://api.autodealerdata.com/static/images/embedImgWide.png)](https://autodealerdata.com)
 
-The CIS Automotive API provides real time sales and market data for the US automotive market with data on 40k dealers and over 430M vehicles.
+The CIS Automotive API provides real time sales and market data for the US automotive market with data on 40k dealers and over 575M vehicles.
 This library provides convenient python bindings to the API and manages access credentials for you. 
 
 For the most recent endpoint documentation see https://api.autodealerdata.com/docs
@@ -137,4 +137,4 @@ print(json.dumps(resp,indent=4, separators=(',', ': ')))
 This package is licensed under the MIT License.
 
 # Copyright
-Copyright 2020 Competitive Intelligence Solutions LLC
+Copyright 2021 Competitive Intelligence Solutions LLC

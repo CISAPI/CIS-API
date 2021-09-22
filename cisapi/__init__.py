@@ -27,7 +27,7 @@ class CisApi:
         call the endpoint via the getWrapper(endPoint:str, params:dict) function. Simply pass the endpoint name as 
         a string and the parameters in as a keyword dictionary {"arg1": value1, "arg2":value2}"""
         self.apiKey=apiKey
-        self.version="2021.08.01"
+        self.version="2021.09.01"
         self.apiKeyID=apiKeyID
         self.configFileName="CIS_API_CREDS.txt"
         if(configFileName):
@@ -106,6 +106,7 @@ class CisApi:
                 subscription plans. You can check the endpoint specific documentation at https://api.autodealerdata.com/docs \n"""
 
             msg+="\nResponse from server: "+str(j)
+            print(msg)
             raise Exception()
         return j
 
@@ -208,6 +209,45 @@ class CisApi:
 
     def listings(self, dealerID:int, page:int=1, newCars:bool=True):
         return self.getWrapper("listings",{"dealerID":dealerID, "page":page, "newCars":newCars})
+
+    def listings2(self, 
+                  dealerID:int=0, zipCode:int=0, latitude:float=0, longitude:float=0, radius:float=0, regionName:str="", 
+                  brandName:str="", modelName:str="", modelYear:int=0,
+                  startDate:date=None, endDate:date=None, daysBack:int=45,
+                  page:int=1, newCars:bool=True, extendedSearch:bool=False):
+        args={}
+        if(dealerID!=0):
+            args["dealerID"]=dealerID
+        if(zipCode!=0):
+            args["zipCode"]=zipCode
+        if(latitude!=0):
+            args["latitude"]=latitude
+        if(longitude!=0):
+            args["longitude"]=longitude
+        if(radius!=0):
+            args["radius"]=radius
+        if(regionName!=""):
+            args["regionName"]=regionName
+
+        if(brandName!=""):
+            args["brandName"]=brandName
+        if(modelName!=""):
+            args["modelName"]=modelName
+        if(modelYear!=0):
+            args["modelYear"]=modelYear
+        
+        if(startDate!=None):
+            args["startDate"]=startDate
+        if(endDate!=None):
+            args["endDate"]=endDate
+        if(daysBack!=0):
+            args["daysBack"]=daysBack
+
+        args["page"]=page
+        args["newCars"]=newCars
+        args["extendedSearch"]=extendedSearch
+
+        return self.getWrapper("listings2", args)
 
     def listingsByDate(self, dealerID:int, startDate:date, endDate:date, page:int=1, newCars:bool=True):
         return self.getWrapper("listingsByDate",{"dealerID":dealerID, "startDate":startDate, "endDate":endDate, "page":page, "newCars":newCars})

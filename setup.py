@@ -12,7 +12,7 @@ if(path.isfile(pypiReadme)):
 setup(
   name = 'cisapi',
   packages = ['cisapi'],
-  version = '0.1.5.0',
+  version = "2021.09.01",
   license='MIT',
   #description = 'Python bindings for the CIS Automotive API.',   # Give a short description about your library
   long_description_content_type="text/html",
@@ -21,7 +21,7 @@ setup(
   author = 'Competitive Intelligence Solutions LLC',                   # Type in your name
   author_email = 'engineering@competitiveintelligencesolutions.com',      # Type in your E-Mail
   url = 'https://autodealerdata.com',   # Provide either the link to your github or to your website
-  download_url = 'https://github.com/CISAPI/CIS-API/archive/0.1.5.tar.gz',    # I explain this later on
+  download_url = 'https://github.com/CISAPI/CIS-API/archive/refs/tags/2021.09.01.tar.gz',    # I explain this later on
   keywords = ['CIS', 'Automotive', 'API', 'Library'],   # Keywords that define your package best
   install_requires=[            # I get to this in a second
           'requests'
