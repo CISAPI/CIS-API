@@ -97,7 +97,7 @@ class CisApi:
             #print("Exception encountered calling endPoint: "+endPoint)
             #print("Msg from server: "+str(j))
             msg="Exception encountered calling endPoint: "+endPoint
-            if(respCode==401):
+            if(respCode==401 or respCode==403):
                 msg+="""\nPlease verify that you have correctly set the useRapidAPI or useVinAPI variables. The "useRapidAPI" variable corresponds
                 to the CIS Automotive API via RapidAPI while "useVinAPI" corresponds to the CIS Vin Decoder API via RapidAPI.\n 
                 If you have subscribed via our site (https://autodealerdata.com) you must retrieve your API keys from your account page and 
@@ -185,10 +185,10 @@ class CisApi:
         return self.getWrapper("topModels",{ "regionName":regionName})
 
     def regionSales(self, brandName:str, month:date, regionName:str="REGION_STATE_CA"):
-        return self.getWrapper("regionSales",{"brandName":brandName, "month":month.isoformat(), "regionName":regionName})
+        return self.getWrapper("regionSales",{"brandName":brandName, "month":str(month), "regionName":regionName})
 
     def regionDailySales(self, brandName:str, day:date, regionName:str="REGION_STATE_CA"):
-        return self.getWrapper("regionDailySales",{"brandName":brandName, "day":day.isoformat(), "regionName":regionName})
+        return self.getWrapper("regionDailySales",{"brandName":brandName, "day":str(day), "regionName":regionName})
 
     #dealership data
     def getDealers(self, zipCode:int):
@@ -210,9 +210,60 @@ class CisApi:
     def listings(self, dealerID:int, page:int=1, newCars:bool=True):
         return self.getWrapper("listings",{"dealerID":dealerID, "page":page, "newCars":newCars})
 
+    def valuation(self,
+                  vin:str,
+                  dealerID:int=0, zipCode:int=0, latitude:float=0, longitude:float=0, radius:float=0, regionName:str="", 
+                  brandName:str="", modelName:str="", modelYear:int=0,
+                  mileageLow:int=0, mileageHigh:int=0,
+                  startDate:date=None, endDate:date=None, daysBack:int=45,
+                  newCars:bool=False, extendedSearch:bool=False, sameYear:bool=False):
+        pass
+        args={}
+        args["vin"]=vin.upper()
+
+        if(dealerID!=0):
+            args["dealerID"]=dealerID
+        if(zipCode!=0):
+            args["zipCode"]=zipCode
+        if(latitude!=0):
+            args["latitude"]=latitude
+        if(longitude!=0):
+            args["longitude"]=longitude
+        if(radius!=0):
+            args["radius"]=radius
+        if(regionName!=""):
+            args["regionName"]=regionName
+
+        if(brandName!=""):
+            args["brandName"]=brandName
+        if(modelName!=""):
+            args["modelName"]=modelName
+        if(modelYear!=0):
+            args["modelYear"]=modelYear
+        
+        if(mileageLow>0):
+            args["mileageLow"]=mileageLow
+        if(mileageHigh>0):
+            args["mileageHigh"]=mileageHigh
+
+        if(startDate!=None):
+            args["startDate"]=startDate
+        if(endDate!=None):
+            args["endDate"]=endDate
+        if(daysBack!=0):
+            args["daysBack"]=daysBack
+
+        args["newCars"]=newCars
+        args["extendedSearch"]=extendedSearch
+        args["sameYear"]=sameYear
+        
+
+        return self.getWrapper("valuation", args)
+
     def listings2(self, 
                   dealerID:int=0, zipCode:int=0, latitude:float=0, longitude:float=0, radius:float=0, regionName:str="", 
                   brandName:str="", modelName:str="", modelYear:int=0,
+                  mileageLow:int=0, mileageHigh:int=0,
                   startDate:date=None, endDate:date=None, daysBack:int=45,
                   page:int=1, newCars:bool=True, extendedSearch:bool=False):
         args={}
@@ -236,6 +287,11 @@ class CisApi:
         if(modelYear!=0):
             args["modelYear"]=modelYear
         
+        if(mileageLow>0):
+            args["mileageLow"]=mileageLow
+        if(mileageHigh>0):
+            args["mileageHigh"]=mileageHigh
+
         if(startDate!=None):
             args["startDate"]=startDate
         if(endDate!=None):
